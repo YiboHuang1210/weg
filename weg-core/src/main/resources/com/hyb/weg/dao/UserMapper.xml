@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hyb.weg.dao.UserMapper">
+
+    <resultMap id="User" type="com.hyb.weg.domain.po.UserPO">
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="user_code" property="userCode" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="user_phone" property="userPhone" jdbcType="VARCHAR"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="fieldSql">
+        t.user_id
+        , t.user_code
+        , t.user_name
+        , t.user_phone
+        , t.add_time
+    </sql>
+
+    <sql id="whereSql">
+        <if test="userId != null">
+            AND t.user_id = #{userId,jdbcType = INTEGER}
+        </if>
+        <if test="userCode != null and userCode != ''">
+            AND t.user_code = #{userCode,jdbcType = VARCHAR}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND t.user_name = #{userName,jdbcType = VARCHAR}
+        </if>
+        <if test="userPhone != null and userPhone != ''">
+            AND t.user_phone = #{userPhone,jdbcType = VARCHAR}
+        </if>
+        <if test="addStartTime != null">
+            AND t.add_time &gt;= #{addStartTime,jdbcType = TIMESTAMP}
+        </if>
+        <if test="addEndTime != null">
+            AND t.add_time &lt;= #{addEndTime,jdbcType = TIMESTAMP}
+        </if>
+        <!--<if test="ownerCodeList != null">-->
+            <!--AND-->
+            <!--<foreach collection="ownerCodeList" item="ownerCodeItem" open="(" close=")" separator="OR">-->
+                <!--t.owner_code = #{ownerCodeItem,jdbcType = VARCHAR}-->
+            <!--</foreach>-->
+        <!--</if>-->
+    </sql>
+
+    <select id="select" parameterType="Integer" resultMap="User" >
+        SELECT
+        <include refid="fieldSql"/>
+        FROM tb_user t
+        WHERE t.user_id = #{userId,jdbcType = INTEGER}
+    </select>
+
+    <select id="count" parameterType="com.hyb.weg.domain.condition.UserCondition" resultType="Integer" >
+        SELECT
+        count(1)
+        FROM tb_user t
+        WHERE 1=1
+        <include refid="whereSql"/>
+    </select>
+
+    <select id="selectList" parameterType="com.hyb.weg.domain.condition.UserCondition" resultMap="User" >
+        SELECT
+        <include refid="fieldSql"/>
+        FROM tb_user t
+        WHERE 1=1
+        <include refid="whereSql"/>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="orderBy == null or orderBy == ''">
+            ORDER BY t.add_time DESC
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.hyb.weg.domain.po.UserPO">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="userId">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO tb_user(
+        user_id
+        <if test="userCode != null and userCode != ''">
+            ,user_code
+        </if>
+        <if test="userName != null and userName != ''">
+            ,user_name
+        </if>
+        <if test="userPhone != null and userPhone != ''">
+            ,user_phone
+        </if>
+        <if test="addTime != null">
+            ,add_time
+        </if>
+        )
+        values(
+        #{userId,jdbcType=INTEGER}
+        <if test="userCode != null and userCode != ''">
+            ,#{userCode,jdbcType=VARCHAR}
+        </if>
+        <if test="userName != null and userName != ''">
+            ,#{userName,jdbcType=VARCHAR}
+        </if>
+        <if test="userPhone != null and userPhone != ''">
+            ,#{userPhone,jdbcType=VARCHAR}
+        </if>
+        <if test="addTime != null">
+            ,#{addTime,jdbcType=TIMESTAMP}
+        </if>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.hyb.weg.domain.po.UserPO">
+        UPDATE tb_user t
+        <set>
+            <if test="userCode != null and userCode != ''">
+                t.user_code = #{userCode,jdbcType = VARCHAR},
+            </if>
+            <if test="userName != null and userName != ''">
+                t.user_name = #{userName,jdbcType = VARCHAR},
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                t.user_phone = #{userPhone,jdbcType = VARCHAR},
+            </if>
+            <if test="addTime != null">
+                t.add_time = #{addTime,jdbcType = TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+        t.user_id= #{userId,jdbcType = INTEGER}
+    </update>
+
+    <delete id="delete" parameterType="INTEGER">
+        DELETE FROM tb_user
+        WHERE user_id = #{userId,jdbcType=INTEGER}
+        AND 1=0
+    </delete>
+
+</mapper>
